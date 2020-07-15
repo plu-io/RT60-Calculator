@@ -1,6 +1,6 @@
 # RT60-Calculator
 
-This calculator uses recordings of the decay of white/pink noise in a room to determine the RT60 values at third-ocatve frequency bands from 400Hz to 10kHz.
+This calculator uses recordings of the decay of white/pink noise in a room to determine the RT60 values at third-octave frequency bands from 400Hz to 10kHz.
 
 When ran, it looks for folders with .wav files. Each folder is treated as a separate sample, and each sample can have as few or as many .wav files as desired. Each sample has a resulting set of RT60 values that will be both printed and exported to an .xls file.
 
