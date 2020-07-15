@@ -36,11 +36,10 @@ def calcRT60(filename):
 
     for k in range(len(freqthird)):
         daf = np.fft.rfft(da) # fourier transform
-        # this ONLY works because file is trimmed to 4 seconds!
-        lowpass = round(freqbands[k] * ((endframe - startframe) / par[2]))
-        highpass = round(freqbands[k + 1] * ((endframe - startframe) / par[2]))
-        daf[:lowpass] = 0 # apply lowpass
-        daf[highpass:] = 0 # apply high pass
+        lofreq = round((freqbands[k + 0] / (par[2] / 2)) * (len(daf) - 1))
+        hifreq = round((freqbands[k + 1] / (par[2] / 2)) * (len(daf) - 1))
+        daf[:lofreq] = 0 # apply high pass
+        daf[hifreq:] = 0 # apply low pass
         nda = np.fft.irfft(daf, len(da)) # undo fourier transform
         nda = nda[:endframe2] # trim end
         nda = nda.astype(np.int16) # set data type to 16 bit integer
@@ -63,7 +62,7 @@ def calcRT60(filename):
         ndalog_min, ndalog_max = min(ndalog), max(ndalog)
         ndalog_cut_apx = ndalog_max - (ndalog_max - ndalog_min) * RATIOOFMAX
         ndalog_cut_ind = (np.abs(ndalog - ndalog_cut_apx)).argmin()
-        ndalog= ndalog[0:ndalog_cut_ind]
+        ndalog = ndalog[0:ndalog_cut_ind]
         
         # linear regression
         temp_index = np.arange(0, len(ndalog))
@@ -108,18 +107,16 @@ for dirs in range(len(dirlist)):
     if len(wavlist) == 0:
         print('No files.')
     else:
-        xlsheet.write(0, 3 * dirs + 0, dirlist[dirs])
-        xlsheet.write(0, 3 * dirs + 1, 'RT60')
-        xlsheet.write(0, 3 * dirs + 2, 'ERROR%')
+        xlsheet.write(0, 2 * dirs + 0, dirlist[dirs])
+        xlsheet.write(0, 2 * dirs + 1, 'stdev')
         print('')
         for i in range(len(RT60fin)):
             RT60arr[i] = np.median(RT60fin[i])
-            RT60err[i] = (np.std(RT60fin[i]) / RT60arr[i])
-            xlsheet.write(i + 1, 3 * dirs + 1, RT60arr[i])
-            xlsheet.write(i + 1, 3 * dirs + 2, RT60err[i])
+            RT60err[i] = np.std(RT60fin[i])
+            xlsheet.write(i + 1, 2 * dirs + 0, RT60arr[i])
+            xlsheet.write(i + 1, 2 * dirs + 1, RT60err[i])
         for i in range(len(RT60arr)):
             print(format(RT60arr[i], '.5f'))
         print('\n-----\n')
 xlbook.save('RT60.xls')
 print('FINISHED')
-
